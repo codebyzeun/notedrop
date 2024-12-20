@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteDrop ☁️ - Profile Space</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #0256ff;
+            --secondary-color: #B5D8F7;
+            --accent-color: #FFB7B7;
+            --text-color: #645CAA;
+            --background-light: #F8F9FA;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #E6E6FA, #FFF0F5);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(100, 92, 170, 0.1);
+            max-width: 400px;
+            margin: 2rem auto;
+            transition: transform 0.3s ease;
+        }
+
+        .auth-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .profile-space {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            box-shadow: 0 8px 32px rgba(100, 92, 170, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .username {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+        .notes-container {
+            margin-top: 2rem;
+        }
+        .note-card {
+            background: var(--background-light);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .note-card .timestamp {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+        }
+        .note-content {
+            color: var(--text-color);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Forms and Inputs */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #FF7EB6;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background: #9EC5E6;
+        }
+
+        .btn-delete {
+            background: #FFB7B7;
+        }
+
+        .btn-delete:hover {
+            background: #FF9999;
+        }
+        .nav-container {
+            display: none;
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--text-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .users-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Note<span>Drop</span> ☁️</div>
+        </header>
+
+        <div class="nav-container" id="navContainer">
+            <div class="nav-links">
+                <a href="#" class="nav-link active" onclick="showMyProfile()">My Profile</a>
+                <a href="#" class="nav-link" onclick="showAllUsers()">Browse Users</a>
+                <a href="#" class="nav-link" onclick="logout()">Logout</a>
+            </div>
+        </div>
+
+        <div class="auth-container" id="loginForm">
+            <h2 style="color: var(--text-color); margin-bottom: 1.5rem;">Welcome Back! 💫</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+            <div class="switch-form" onclick="toggleForms()" style="margin-top: 1rem; cursor: pointer; color: var(--text-color);">
+                New here? Create an account!
+            </div>
+        </div>
+
+        <div class="auth-container" id="signupForm" style="display: none;">
+            <h2 style="color: var(--text-color); margin-bottom: 1.5rem;">Join NoteDrop! 🌟</h2>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="signupUsername" placeholder="Choose a username">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="signupEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="Create a password">
+            </div>
+            <button class="btn" onclick="signup()">Sign Up</button>
+            <div class="switch-form" onclick="toggleForms()" style="margin-top: 1rem; cursor: pointer; color: var(--text-color);">
+                Already have an account? Login!
+            </div>
+        </div>
+
+        <div class="profile-space" id="profileSpace">
+            <div class="profile-header">
+                <h2 class="username" id="profileUsername">Username's Space</h2>
+                <div id="profileActions">
+                </div>
+            </div>
+
+            <div id="noteCreation" style="display: none;">
+                <div class="form-group">
+                    <label>Create a New Note</label>
+                    <textarea id="newNoteContent" rows="4" placeholder="Write your note here..."></textarea>
+                </div>
+                <button class="btn" onclick="createNote()">Post Note ✨</button>
+            </div>
+
+            <div class="notes-container" id="notesContainer">
+            </div>
+        </div>
+        <div class="users-list" id="usersList" style="display: none;">
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBcnfngUmyrgV3dmBA-v6DoGJpzTNNpkE",
+            authDomain: "clouddrop-45bd5.firebaseapp.com",
+            projectId: "clouddrop-45bd5",
+            storageBucket: "clouddrop-45bd5.firebaseapp.com",
+            messagingSenderId: "808607173996",
+            appId: "1:808607173996:web:f013ce57dd5b0ca186f749",
+            measurementId: "G-D5DHNH8MF3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.setDoc = setDoc;
+        window.getDocs = getDocs;
+        window.deleteDoc = deleteDoc;
+        window.query = query;
+        window.orderBy = orderBy;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('signupForm').style.display = 'none';
+                document.getElementById('navContainer').style.display = 'block';
+                showMyProfile();
+            } else {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('profileSpace').style.display = 'none';
+                document.getElementById('navContainer').style.display = 'none';
+                document.getElementById('usersList').style.display = 'none';
+            }
+        });
+    </script>
+
+    <script>
+                function toggleForms() {
+                    const loginForm = document.getElementById('loginForm');
+                    const signupForm = document.getElementById('signupForm');
+                    loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+                    signupForm.style.display = signupForm.style.display === 'none' ? 'block' : 'none';
+                }
+        
+                function showToast(message, duration = 3000) {
+                    const toast = document.getElementById('toast');
+                    toast.textContent = message;
+                    toast.style.display = 'block';
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                    }, duration);
+                }
+        
+                async function signup() {
+                    const email = document.getElementById('signupEmail').value;
+                    const password = document.getElementById('signupPassword').value;
+                    const username = document.getElementById('signupUsername').value;
+        
+                    try {
+                        const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                        const user = userCredential.user;
+        
+                        await window.setDoc(window.doc(window.db, 'users', user.uid), {
+                            username: username,
+                            email: email,
+                            createdAt: new Date().toISOString()
+                        });
+        
+                        showToast('Account created successfully! 🎉');
+                    } catch (error) {
+                        showToast('Error: ' + error.message);
+                    }
+                }
+        
+                async function logout() {
+                    try {
+                        await window.signOut(window.auth);
+                        showToast('Logged out successfully! 👋');
+                    } catch (error) {
+                        showToast('Error logging out: ' + error.message);
+                    }
+                }
+        
+                async function showMyProfile() {
+                    const user = window.auth.currentUser;
+                    if (!user) return;
+        
+                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                    document.querySelector('.nav-link:nth-child(1)').classList.add('active');
+        
+                    document.getElementById('profileSpace').style.display = 'block';
+                    document.getElementById('usersList').style.display = 'none';
+        
+                    const userDoc = await window.getDoc(window.doc(window.db, 'users', user.uid));
+                    const userData = userDoc.data();
+        
+                    document.getElementById('profileUsername').textContent = userData.username + "'s Space";
+                    document.getElementById('noteCreation').style.display = 'block';
+                    
+                    await loadNotes(user.uid);
+                }
+        
+                async function showUserProfile(userId) {
+                    const userDoc = await window.getDoc(window.doc(window.db, 'users', userId));
+                    const userData = userDoc.data();
+        
+                    document.getElementById('profileSpace').style.display = 'block';
+                    document.getElementById('usersList').style.display = 'none';
+        
+                    document.getElementById('profileUsername').textContent = userData.username + "'s Space";
+                    document.getElementById('noteCreation').style.display = 'none';
+        
+                    await loadNotes(userId);
+                }
+        
+                async function showAllUsers() {
+                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                    document.querySelector('.nav-link:nth-child(2)').classList.add('active');
+        
+                    document.getElementById('profileSpace').style.display = 'none';
+                    document.getElementById('usersList').style.display = 'grid';
+        
+                    const usersList = document.getElementById('usersList');
+                    usersList.innerHTML = '';
+        
+                    try {
+                        const querySnapshot = await window.getDocs(window.collection(window.db, 'users'));
+                        querySnapshot.forEach((doc) => {
+                            const userData = doc.data();
+                            if (doc.id !== window.auth.currentUser.uid) {
+                                const userCard = document.createElement('div');
+                                userCard.className = 'user-card';
+                                userCard.innerHTML = ` 
+                                    <h3>${userData.username}</h3>
+                                    <p style="color: #888; margin: 0.5rem 0;">Joined ${new Date(userData.createdAt).toLocaleDateString()}</p>
+                                    <button class="btn btn-secondary" onclick="showUserProfile('${doc.id}')">View Profile</button>
+                                `;
+                                usersList.appendChild(userCard);
+                            }
+                        });
+                    } catch (error) {
+                        showToast('Error loading users: ' + error.message);
+                    }
+                }
+        
+                async function createNote() {
+                    const user = window.auth.currentUser;
+                    if (!user) return;
+        
+                    const content = document.getElementById('newNoteContent').value.trim();
+                    if (!content) {
+                        showToast('Please write something in your note! ✍️');
+                        return;
+                    }
+        
+                    try {
+                        await window.addDoc(window.collection(window.db, `users/${user.uid}/notes`), {
+                            content: content,
+                            createdAt: new Date().toISOString()
+                        });
+        
+                        document.getElementById('newNoteContent').value = '';
+                        showToast('Note created successfully! ✨');
+                        await loadNotes(user.uid);
+                    } catch (error) {
+                        showToast('Error creating note: ' + error.message);
+                    }
+                }
+        
+                async function deleteNote(noteId) {
+                    const user = window.auth.currentUser;
+                    if (!user) return;
+        
+                    try {
+                        await window.deleteDoc(window.doc(window.db, `users/${user.uid}/notes`, noteId));
+                        showToast('Note deleted! 🗑️');
+                        await loadNotes(user.uid);
+                    } catch (error) {
+                        showToast('Error deleting note: ' + error.message);
+                    }
+                }
+        
+                async function loadNotes(userId) {
+                    const notesContainer = document.getElementById('notesContainer');
+                    notesContainer.innerHTML = '';
+        
+                    try {
+                        const q = window.query(
+                            window.collection(window.db, `users/${userId}/notes`),
+                            window.orderBy('createdAt', 'desc')
+                        );
+                        
+                        const querySnapshot = await window.getDocs(q);
+                        querySnapshot.forEach((doc) => {
+                            const noteData = doc.data();
+                            const noteElement = document.createElement('div');
+                            noteElement.className = 'note-card';
+                            
+                            const isOwnProfile = userId === window.auth.currentUser.uid;
+                            const deleteButton = isOwnProfile ? 
+                                `<button class="btn btn-delete" onclick="deleteNote('${doc.id}')">Delete</button>` : '';
+        
+                            noteElement.innerHTML = `
+                                <div class="timestamp">${new Date(noteData.createdAt).toLocaleString()}</div>
+                                <div class="note-content">${noteData.content}</div>
+                                <div class="note-actions">
+                                    <button class="btn btn-secondary" onclick="copyNote('${noteData.content}')">Copy Note</button>
+                                    ${deleteButton}
+                                </div>
+                            `;
+                            notesContainer.appendChild(noteElement);
+                        });
+                    } catch (error) {
+                        showToast('Error loading notes: ' + error.message);
+                    }
+                }
+        
+                function copyNote(content) {
+                    navigator.clipboard.writeText(content)
+                        .then(() => showToast('Note copied to clipboard! 📋'))
+                        .catch(err => showToast('Error copying note: ' + err.message));
+                }
+                async function login() {
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+                
+                    try {
+                        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                        const user = userCredential.user;
+                        
+                        showToast('Logged in successfully! 🎉');
+                        showMyProfile(); 
+                        
+                    } catch (error) {
+                        showToast('Login failed: ' + error.message);
+                    }
+                }
+                
+            </script>
+        
+</body>
+</html>
